@@ -93,9 +93,7 @@ func (cf *Formatter) Format(entry *log.Entry) ([]byte, error) {
 
 	cf.emitTimestamp(&buf, entry.Time)
 	cf.emitLogLevel(&buf, entry.Level)
-	if cf.includeCaller {
-		cf.emitCaller(&buf)
-	}
+
 
 	for _, f := range cf.constantFields {
 		buf.Write(f)
@@ -111,6 +109,11 @@ func (cf *Formatter) Format(entry *log.Entry) ([]byte, error) {
 			}
 		}
 	}
+
+	if cf.includeCaller {
+		cf.emitCaller(&buf)
+	}
+
 
 	keys := make([]string, 0, len(entry.Data))
 	for k := range entry.Data {
@@ -208,7 +211,14 @@ func (cf *Formatter) emit(b *bytes.Buffer, k string, v interface{}, n int) {
 }
 
 func (cf *Formatter) emitLogLevel(b *bytes.Buffer, level log.Level) {
-	fmt.Fprintf(b, " ll=%q", level)
+	l := level.String()
+	if l == "warning" {
+		l = "warn "
+	}
+	if l == "info" {
+		l = "info "
+	}
+	fmt.Fprintf(b, " ll=%q", l)
 }
 
 func (cf *Formatter) findCaller() (string, int) {
@@ -247,8 +257,9 @@ func (cf *Formatter) emitCaller(b *bytes.Buffer) {
 		b.Write([]byte(" srcfnc=\"unknown\""))
 		return
 	}
+	src := fmt.Sprintf("%s:%d", name, line-1)
 
-	fmt.Fprintf(b, " srcfnc=%q srcline=%d", name, line)
+	fmt.Fprintf(b, " src=%q", src)
 }
 
 // Marshaler is the interface implemented by types that can marshal their own

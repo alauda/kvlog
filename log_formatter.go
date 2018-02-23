@@ -95,6 +95,11 @@ func (cf *Formatter) Format(entry *log.Entry) ([]byte, error) {
 	cf.emitLogLevel(&buf, entry.Level)
 
 
+	if entry.Message != "" {
+		cf.emit(&buf, "msg", entry.Message, 0)
+	}
+
+
 	for _, f := range cf.constantFields {
 		buf.Write(f)
 	}
@@ -126,10 +131,6 @@ func (cf *Formatter) Format(entry *log.Entry) ([]byte, error) {
 
 	for _, k := range keys {
 		cf.emit(&buf, k, entry.Data[k], 0)
-	}
-
-	if entry.Message != "" {
-		cf.emit(&buf, "_msg", entry.Message, 0)
 	}
 
 	buf.Write([]byte("\n"))
@@ -218,7 +219,7 @@ func (cf *Formatter) emitLogLevel(b *bytes.Buffer, level log.Level) {
 	if l == "info" {
 		l = "info "
 	}
-	fmt.Fprintf(b, " ll=%q", l)
+	fmt.Fprintf(b, " ll=%s", l)
 }
 
 func (cf *Formatter) findCaller() (string, int) {

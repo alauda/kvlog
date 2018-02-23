@@ -28,4 +28,3 @@ _testmain.go
 
 # godeps _workspace holds all checked out dependencies
 _workspace
-.idea/

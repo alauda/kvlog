@@ -115,11 +115,7 @@ func (cf *Formatter) Format(entry *log.Entry) ([]byte, error) {
 		}
 	}
 
-	if cf.includeCaller {
-		cf.emitCaller(&buf)
-	}
-
-
+	
 	keys := make([]string, 0, len(entry.Data))
 	for k := range entry.Data {
 		if _, ok := skip[k]; ok {
@@ -131,6 +127,10 @@ func (cf *Formatter) Format(entry *log.Entry) ([]byte, error) {
 
 	for _, k := range keys {
 		cf.emit(&buf, k, entry.Data[k], 0)
+	}
+
+	if cf.includeCaller {
+		cf.emitCaller(&buf)
 	}
 
 	buf.Write([]byte("\n"))
